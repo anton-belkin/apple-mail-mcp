@@ -17,10 +17,22 @@ from apple_mail_mcp.core import (
     build_mailbox_ref,
     build_filter_condition,
 )
+from apple_mail_mcp.permissions import requires, Tier
+
+
+# Mailboxes that are effectively deletion targets — moving here needs FULL.
+_TRASH_LIKE = {"trash", "deleted messages", "deleted items", "bin", "junk"}
+
+
+def _move_tier(bound):
+    """Moving to a trash-like mailbox is a delete (FULL); otherwise SEND."""
+    dest = (bound.get("to_mailbox") or "").strip().casefold()
+    return Tier.FULL if dest in _TRASH_LIKE else Tier.SEND
 
 
 @mcp.tool()
 @inject_preferences
+@requires(_move_tier)
 def move_email(
     account: str,
     to_mailbox: str,
@@ -241,6 +253,7 @@ def move_email(
 
 @mcp.tool()
 @inject_preferences
+@requires(Tier.READ)
 def save_email_attachment(
     account: str, subject_keyword: str, attachment_name: str, save_path: str
 ) -> str:
@@ -354,6 +367,7 @@ def save_email_attachment(
 
 @mcp.tool()
 @inject_preferences
+@requires(Tier.SEND)
 def update_email_status(
     account: str,
     action: str,
@@ -603,6 +617,7 @@ def update_email_status(
 
 @mcp.tool()
 @inject_preferences
+@requires(Tier.FULL)
 def manage_trash(
     account: str,
     action: str,
@@ -859,6 +874,7 @@ _INVALID_MAILBOX_CHARS = re.compile(r"[\\\"<>|?*:\x00-\x1f]")
 
 @mcp.tool()
 @inject_preferences
+@requires(Tier.SEND)
 def create_mailbox(
     account: str,
     name: str,
@@ -958,6 +974,7 @@ def create_mailbox(
 
 @mcp.tool()
 @inject_preferences
+@requires(Tier.READ)
 def synchronize_account(account: Optional[str] = None) -> str:
     """
     Force Mail.app to synchronize an account (or every account) with its

@@ -4,12 +4,14 @@ import os
 from typing import Optional, List, Dict, Any
 
 from apple_mail_mcp.server import mcp
+from apple_mail_mcp.permissions import requires, Tier
 from apple_mail_mcp.core import inject_preferences, escape_applescript, run_applescript, inbox_mailbox_script
 from apple_mail_mcp.constants import SKIP_FOLDERS
 
 
 @mcp.tool()
 @inject_preferences
+@requires(Tier.READ)
 def list_email_attachments(
     account: str,
     subject_keyword: str,
@@ -101,6 +103,7 @@ def list_email_attachments(
 
 @mcp.tool()
 @inject_preferences
+@requires(Tier.READ)
 def get_statistics(
     account: str,
     scope: str = "account_overview",
@@ -394,6 +397,7 @@ def get_statistics(
 
 @mcp.tool()
 @inject_preferences
+@requires(Tier.READ)
 def export_emails(
     account: str,
     scope: str,

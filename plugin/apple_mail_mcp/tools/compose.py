@@ -17,6 +17,30 @@ from apple_mail_mcp.core import (
     run_applescript,
     inbox_mailbox_script,
 )
+from apple_mail_mcp.permissions import requires, Tier
+
+
+def _reply_tier(bound):
+    """Reply needs SEND unless it only saves a draft."""
+    mode = bound.get("mode")
+    if mode is not None:
+        return Tier.SEND if mode in ("send", "open") else Tier.READ
+    return Tier.SEND if bound.get("send", True) else Tier.READ
+
+
+def _compose_tier(bound):
+    """Compose needs SEND unless it only saves a draft."""
+    return Tier.READ if bound.get("mode", "send") == "draft" else Tier.SEND
+
+
+def _drafts_tier(bound):
+    """Draft management: delete=FULL, send=SEND, list/create/open=READ."""
+    action = (bound.get("action") or "").lower()
+    if action == "delete":
+        return Tier.FULL
+    if action == "send":
+        return Tier.SEND
+    return Tier.READ
 
 
 def _split_addresses(value):
@@ -266,6 +290,7 @@ def _save_open_message_as_draft(subject, retries=10, delay_seconds=0.5):
 
 @mcp.tool()
 @inject_preferences
+@requires(Tier.READ)
 def create_rich_email_draft(
     account: str,
     subject: str = "",
@@ -643,6 +668,7 @@ def _validate_attachment_paths(attachments: str) -> Tuple[List[str], Optional[st
 
 @mcp.tool()
 @inject_preferences
+@requires(_reply_tier)
 def reply_to_email(
     account: str,
     subject_keyword: str,
@@ -983,6 +1009,7 @@ tell application "Mail"
 
 @mcp.tool()
 @inject_preferences
+@requires(_compose_tier)
 def compose_email(
     account: str,
     to: str,
@@ -1183,6 +1210,7 @@ def compose_email(
 
 @mcp.tool()
 @inject_preferences
+@requires(Tier.SEND)
 def forward_email(
     account: str,
     subject_keyword: str,
@@ -1422,6 +1450,7 @@ tell application "Mail"
 
 @mcp.tool()
 @inject_preferences
+@requires(_drafts_tier)
 def manage_drafts(
     account: str,
     action: str,

@@ -3,6 +3,7 @@
 from typing import Optional
 
 from apple_mail_mcp.server import mcp
+from apple_mail_mcp.permissions import requires, Tier
 from apple_mail_mcp.core import (
     inject_preferences,
     escape_applescript,
@@ -70,6 +71,7 @@ def _newsletter_filter_condition(sender_var: str = "lowerSender") -> str:
 
 @mcp.tool()
 @inject_preferences
+@requires(Tier.READ)
 def get_awaiting_reply(
     account: str,
     days_back: int = 7,
@@ -227,6 +229,7 @@ def get_awaiting_reply(
 
 @mcp.tool()
 @inject_preferences
+@requires(Tier.READ)
 def get_needs_response(
     account: str,
     mailbox: str = "INBOX",
@@ -419,6 +422,7 @@ def get_needs_response(
 
 @mcp.tool()
 @inject_preferences
+@requires(Tier.READ)
 def get_top_senders(
     account: str,
     mailbox: str = "INBOX",

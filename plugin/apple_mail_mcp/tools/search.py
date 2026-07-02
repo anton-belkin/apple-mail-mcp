@@ -7,6 +7,7 @@ from typing import Optional, List, Dict, Any
 from urllib.parse import quote
 
 from apple_mail_mcp.server import mcp
+from apple_mail_mcp.permissions import requires, Tier
 from apple_mail_mcp.constants import FLAG_COLOR_NAMES
 from apple_mail_mcp.core import (
     contains_any_condition,
@@ -552,6 +553,7 @@ def _search_mail_records(
 
 @mcp.tool()
 @inject_preferences
+@requires(Tier.READ)
 def search_emails(
     account: Optional[str] = None,
     mailbox: str = "INBOX",
@@ -647,6 +649,7 @@ def search_emails(
 
 @mcp.tool()
 @inject_preferences
+@requires(Tier.READ)
 def get_email_thread(
     account: str, subject_keyword: str, mailbox: str = "INBOX", max_messages: int = 50
 ) -> str:

@@ -4,6 +4,7 @@ import json
 from typing import Optional, List, Dict, Any
 
 from apple_mail_mcp.server import mcp
+from apple_mail_mcp.permissions import requires, Tier
 from apple_mail_mcp.core import (
     inject_preferences,
     escape_applescript,
@@ -37,6 +38,7 @@ def _parse_pipe_delimited_emails(raw: str) -> List[Dict[str, Any]]:
 
 @mcp.tool()
 @inject_preferences
+@requires(Tier.READ)
 def list_inbox_emails(
     account: Optional[str] = None,
     max_emails: int = 0,
@@ -190,6 +192,7 @@ def _list_inbox_emails_json(
 
 @mcp.tool()
 @inject_preferences
+@requires(Tier.READ)
 def get_mailbox_unread_counts(
     account: Optional[str] = None,
     include_zero: bool = False,
@@ -408,6 +411,7 @@ def list_account_addresses() -> Dict[str, List[str]]:
 
 @mcp.tool()
 @inject_preferences
+@requires(Tier.READ)
 def list_mailboxes(account: Optional[str] = None, include_counts: bool = True) -> str:
     """
     List all mailboxes (folders) for a specific account or all accounts.

@@ -1,8 +1,8 @@
 {
   "dxt_version": "0.1",
-  "name": "Apple Mail MCP",
-  "version": "3.1.8",
-  "description": "Natural language interface for Apple Mail with 27 tools — email search, composition, bulk operations, smart inbox analytics, folder management, and security-hardened destructive operations. Includes Email Management Expert Skill and Interactive UI Dashboard.",
+  "name": "Apple Mail & Calendar MCP",
+  "version": "3.2.0",
+  "description": "Natural language interface for Apple Mail, Calendar & Reminders — email search, composition, bulk operations, smart inbox analytics, folder management, calendar events, reminders, and security-hardened destructive operations, all governed by per-account permission tiers (read / send / full). Includes Email Management Expert Skill and Interactive UI Dashboard.",
   "author": {
     "name": "Patrick Freyer"
   },

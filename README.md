@@ -1,4 +1,4 @@
-# Apple Mail MCP Server
+# Apple Mail & Calendar MCP Server
 
 <!-- mcp-name: io.github.patrickfreyer/apple-mail -->
 
@@ -92,7 +92,9 @@ claude mcp add apple-mail -- /bin/bash $(pwd)/start_mcp.sh
 
 </details>
 
-## Tools (22)
+## Tools (38)
+
+Every tool is governed by the [per-account permission tiers](#permissions-per-account) (`read` / `send` / `full`).
 
 ### Reading & Search
 | Tool | Description |
@@ -112,6 +114,7 @@ claude mcp add apple-mail -- /bin/bash $(pwd)/start_mcp.sh
 | `move_email` | Move/archive emails with filters (subject, sender, date, read status, dry-run) |
 | `update_email_status` | Mark read/unread, flag/unflag (optional flag color) — by filters or message IDs |
 | `manage_trash` | Soft delete, permanent delete, empty trash (with dry-run) |
+| `synchronize_account` | Trigger a mail sync for one account or all accounts |
 
 ### Composition
 | Tool | Description |
@@ -142,11 +145,75 @@ claude mcp add apple-mail -- /bin/bash $(pwd)/start_mcp.sh
 | `export_emails` | Export single emails or mailboxes to TXT/HTML |
 | `inbox_dashboard` | Interactive UI dashboard (requires mcp-ui-server) |
 
+### Calendar
+| Tool | Description | Tier |
+|------|-------------|------|
+| `list_calendars` | List calendars and whether each is writable | read |
+| `list_events` | Events in a date range, optionally by calendar / title substring | read |
+| `get_event` | Details of one event by uid | read |
+| `create_event` | Create an event (time, location, notes, all-day, invitees) | send |
+| `update_event` | Update selected fields of an event | send |
+| `delete_event` | Delete an event by uid | full |
+
+### Reminders
+| Tool | Description | Tier |
+|------|-------------|------|
+| `list_reminder_lists` | List all reminder lists with counts | read |
+| `list_reminders` | Reminders in a list (or all), optionally including completed | read |
+| `create_reminder` | Create a reminder (due date, notes, priority) | send |
+| `complete_reminder` | Mark the first matching incomplete reminder done | send |
+| `update_reminder` | Update selected fields of a reminder | send |
+| `delete_reminder` | Delete the first matching reminder | full |
+
+Dates for Calendar/Reminders use ISO form: `YYYY-MM-DD` or `YYYY-MM-DD HH:MM`.
+
 ## Configuration
+
+### Permissions (per-account)
+
+Access is gated by four ordered tiers — `none` < `read` < `send` < `full`:
+
+| Tier | Grants |
+|------|--------|
+| `none` | nothing (account hidden; every tool denied) |
+| `read` | view / list / search only |
+| `send` | read + compose / reply / mark / move / create events & reminders |
+| `full` | send + delete / trash / permanent removal |
+
+Tiers are assigned per name across three domains — `accounts` (Mail), `calendars`, and `reminders` — via the `APPLE_MCP_PERMISSIONS` environment variable (JSON) or a config file at `~/.config/apple-mail-mcp/permissions.json`. Each domain may set its own `default`; unlisted names fall back to it, then to the top-level `default`.
+
+**The built-in default is `full`** — with no config, everything works exactly as before (drop-in upgrade). Set `"default": "read"` for a secure-by-default (lockdown) posture, then elevate the accounts you trust. The `--read-only` flag still works and caps *every* account at `read` regardless of config.
+
+```json
+{
+  "mcpServers": {
+    "apple-mail": {
+      "command": "/path/to/venv/bin/python3",
+      "args": ["/path/to/apple_mail_mcp.py"],
+      "env": {
+        "APPLE_MCP_PERMISSIONS": "{\"default\":\"read\",\"accounts\":{\"Personal\":\"full\",\"Work\":\"send\"},\"calendars\":{\"default\":\"read\",\"Home\":\"full\"},\"reminders\":{\"default\":\"send\"}}"
+      }
+    }
+  }
+}
+```
+
+Or as a file (easier to read) at `~/.config/apple-mail-mcp/permissions.json`:
+
+```json
+{
+  "default": "read",
+  "accounts":  { "Personal": "full", "Work": "send", "Old": "none" },
+  "calendars": { "default": "read", "Home": "full" },
+  "reminders": { "default": "send" }
+}
+```
+
+The env var takes precedence over the file. Account/calendar/list names are matched case-insensitively. Denied calls return an explanatory `Error: Permission denied …` message rather than acting.
 
 ### Read-Only Mode
 
-Pass `--read-only` to disable tools that send email (`compose_email`, `reply_to_email`, `forward_email`). Draft management remains available (list, create, delete) but sending a draft via `manage_drafts` is blocked.
+Pass `--read-only` for a global lockdown: it caps **every** account/calendar/list at the `read` tier (no sending, moving, or deleting anywhere) and additionally removes the pure-send email tools (`compose_email`, `reply_to_email`, `forward_email`) from the tool list. Draft management remains available (list, create) but sending a draft via `manage_drafts` is blocked. For finer control, prefer per-account tiers via [`APPLE_MCP_PERMISSIONS`](#permissions-per-account) instead.
 
 ```json
 {
@@ -227,7 +294,7 @@ cp -r plugin/skills/email-management ~/.claude/skills/email-management
 - Python 3.7+
 - `fastmcp` (+ optional `mcp-ui-server` for dashboard)
 - Claude Desktop or any MCP-compatible client
-- Mail.app permissions: Automation + Mail Data Access (grant in **System Settings > Privacy & Security > Automation**)
+- Automation permissions for **Mail**, **Calendar**, and **Reminders** (grant in **System Settings > Privacy & Security > Automation** — macOS prompts on first use of each app)
 
 ## Troubleshooting
 

@@ -1,17 +1,17 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.patrickfreyer/apple-mail",
-  "description": "Full Apple Mail access for AI — search, compose, organize & analyze emails (macOS)",
+  "description": "Apple Mail, Calendar & Reminders access for AI — search, compose, organize & analyze, with per-account permission tiers (macOS)",
   "repository": {
     "url": "https://github.com/patrickfreyer/apple-mail-mcp",
     "source": "github"
   },
-  "version": "3.1.8",
+  "version": "3.2.0",
   "packages": [
     {
       "registryType": "pypi",
       "identifier": "mcp-apple-mail",
-      "version": "3.1.8",
+      "version": "3.2.0",
       "transport": {
         "type": "stdio"
       }

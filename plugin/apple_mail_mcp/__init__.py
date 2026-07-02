@@ -1,6 +1,6 @@
-"""Apple Mail MCP - Modular package."""
+"""Apple Mail & Calendar MCP - Modular package."""
 
-__version__ = "3.1.8"
+__version__ = "3.2.0"
 
 from apple_mail_mcp.server import mcp
 
@@ -19,3 +19,5 @@ from apple_mail_mcp.tools import compose  # noqa: F401  (5 tools)
 from apple_mail_mcp.tools import manage  # noqa: F401  (5 tools)
 from apple_mail_mcp.tools import analytics  # noqa: F401  (4 tools)
 from apple_mail_mcp.tools import smart_inbox  # noqa: F401  (3 tools)
+from apple_mail_mcp.tools import calendar  # noqa: F401  (6 tools)
+from apple_mail_mcp.tools import reminders  # noqa: F401  (6 tools)

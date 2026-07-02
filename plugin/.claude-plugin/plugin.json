@@ -1,7 +1,7 @@
 {
   "name": "apple-mail",
-  "description": "Natural language interface for Apple Mail — search, compose, triage, organize, and analyze email with 24 MCP tools and an expert email management skill",
-  "version": "3.1.2",
+  "description": "Natural language interface for Apple Mail, Calendar & Reminders — search, compose, triage, organize, and analyze, with per-account permission tiers and an expert email management skill",
+  "version": "3.2.0",
   "author": {
     "name": "Patrick Freyer",
     "email": "freyer.patrick@bcg.com"
